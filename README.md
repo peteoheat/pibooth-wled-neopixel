@@ -56,23 +56,31 @@ through its states - no WiFi required at all once WLED has been configured.
    (log out/in, or reboot, for this to take effect)
  
 ## Installation
- 
+
 ```bash
-pip install pyserial
+pip install pibooth-wled-neopixel
 ```
- 
-Copy `pibooth-wled-neopixel.py` into your pibooth project, then reference it from
-`pibooth.cfg`:
- 
+
+This also installs `pyserial`. Install it into the same Python environment as
+pibooth. pibooth discovers installed plugins automatically, so there is nothing to
+add to `[GENERAL] plugins`. Run `pibooth` once to regenerate `pibooth.cfg` with the
+new `[WLED]` section, or run `pibooth --config` to edit it from the UI.
+
+To upgrade: `pip install --upgrade pibooth-wled-neopixel`.
+
+### Manual install (without pip)
+
+Copy `pibooth_wled_neopixel.py` somewhere on the Pi, `pip install pyserial`, then
+reference it from `pibooth.cfg`:
+
 ```ini
 [GENERAL]
-plugins = /home/pi/pibooth-wled-neopixel.py
+plugins = /home/pi/pibooth_wled_neopixel.py
 ```
- 
-(`plugins` accepts a comma-separated list, so add it alongside any other plugin
-paths you already have.) Run `pibooth` once to regenerate `pibooth.cfg` with the
-new `[WLED]` section, or run `pibooth --config` to edit it from the UI.
- 
+
+(`plugins` accepts a comma-separated list.) Don't do both, or the plugin is loaded
+twice.
+
 ## Configuration reference
  
 All options live under `[WLED]` in `pibooth.cfg`.
@@ -237,16 +245,22 @@ number.
   this plugin sends (and every connection problem) is logged under the `wled:`
   prefix.
 ## Testing without hardware
- 
-`test_plugin.py` registers the plugin against pibooth's real hookspecs and config
-parser (catching any hook-signature or config mistakes) and drives it through every
-state with a fake serial port, printing the exact JSON it would send to WLED:
- 
-```bash
-pip install pibooth pyserial
-python3 test_plugin.py
-```
- 
+
+Real behaviour needs a Raspberry Pi and an ESP32. To exercise the plugin without
+hardware, replace `serial.Serial` with a fake that prints each line written to it,
+then call the `state_*_enter` hooks in turn.
+
+## Releasing (maintainers)
+
+1. Bump `__version__` in `pibooth_wled_neopixel.py` and add a `CHANGELOG.md` entry.
+2. Check locally: `python -m pip install build twine && python -m build && twine check dist/*`
+3. Publish a GitHub release tagged `v<version>`. The `publish.yml` workflow builds
+   and uploads to PyPI using trusted publishing.
+
+One-off setup: on pypi.org add a (pending) trusted publisher for this repo with
+workflow `publish.yml` and environment `pypi`, and create a `pypi` environment in
+the GitHub repo settings. To upload manually instead, run `twine upload dist/*`.
+
 ## License
  
 MIT - see [LICENSE](LICENSE).

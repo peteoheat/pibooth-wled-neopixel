@@ -2,19 +2,19 @@
 
 ## Project
 
-`pibooth-wled-neopixel` is a single-file [pibooth](https://github.com/pibooth/pibooth) plugin (`pibooth-wled-neopixel.py`, MIT licensed). It lights a NeoPixel/WS281x strip or ring by sending WLED JSON commands over a USB-serial link to a separate ESP32 running stock, unmodified WLED firmware. It is the WLED-based sibling of the author's SPI-driven plugin `pibooth-neopixel_spi`. Don't enable both against the same strip.
+`pibooth-wled-neopixel` is a single-module [pibooth](https://github.com/pibooth/pibooth) plugin (`pibooth_wled_neopixel.py`, MIT licensed, published on PyPI). It lights a NeoPixel/WS281x strip or ring by sending WLED JSON commands over a USB-serial link to a separate ESP32 running stock, unmodified WLED firmware. It is the WLED-based sibling of the author's SPI-driven plugin `pibooth-neopixel_spi`. Don't enable both against the same strip.
 
-Files: `pibooth-wled-neopixel.py` (all code), `README.md` (user docs and full config reference), `LICENSE`.
+Files: `pibooth_wled_neopixel.py` (all code), `pyproject.toml` (packaging, version read from `__version__`, `pibooth` entry point), `README.md` (user docs and full config reference), `CHANGELOG.md`, `.github/workflows/publish.yml` (PyPI trusted publishing on GitHub release), `LICENSE`.
 
-Note: the README refers to a `test_plugin.py` (fake serial port, drives every state and prints the JSON sent). That file is **not in the repo**. Either add it or fix the README. Don't assume it exists.
+Note: there is no `test_plugin.py` in the repo.
 
 ## Running / testing
 
 - No build step. Dependencies: `pibooth` and `pyserial` (`pip install pibooth pyserial`). pyserial is imported in a try/except, so the module loads without it.
-- The plugin is loaded by pibooth via `[GENERAL] plugins = /path/to/pibooth-wled-neopixel.py` in `pibooth.cfg`. Run `pibooth -v` for verbose logs. Every log line from this plugin is prefixed `wled:`.
+- The plugin is loaded by pibooth via the `pibooth` entry point once pip-installed (or manually via `[GENERAL] plugins = /path/to/pibooth_wled_neopixel.py`). Run `pibooth -v` for verbose logs. Every log line from this plugin is prefixed `wled:`.
 - There are no tests or linter config. Real behaviour needs a Raspberry Pi and an ESP32, so verify changes by reasoning about the JSON sent. A fake `serial.Serial` is the way to test without hardware.
 
-## Architecture (`pibooth-wled-neopixel.py`)
+## Architecture (`pibooth_wled_neopixel.py`)
 
 - `PATTERNS`: name to `(wled_fx_id, sx, ix, wled_display_name)`. Includes aliases (`pulse`, `color_wipe`, `chase_multi`). `comet` is WLED effect 41, which WLED now displays as "Lighthouse".
 - `STAGES` and `STAGE_DEFAULTS`: the 9 pibooth states (wait, choose, chosen, preview, capture, processing, print, finish, failsafe). Each has `<stage>_color`, `_fx`, `_sx` and `_ix` options. Default sx/ix are filled in from `PATTERNS`.
@@ -35,4 +35,4 @@ Note: the README refers to a `test_plugin.py` (fake serial port, drives every st
 - WLED effect IDs in `PATTERNS` were compiled from WLED source and community references, not read from a device. Keep them as stable numeric IDs (WLED only appends effects).
 - Don't use GPIO1 or GPIO3 for the LED data line. They are the ESP32 UART0 pins used by the USB serial link.
 - `attract_sequence` from the SPI plugin is intentionally not ported (the README says so).
-- Style: Python 3, `.format()` strings (no f-strings), `LOGGER` from `pibooth.utils`, log messages prefixed `wled:`, comments explain why. `__version__` is `1.0.0` and is not yet used in packaging, since there is no setup.py.
+- Style: Python 3, `.format()` strings (no f-strings), `LOGGER` from `pibooth.utils`, log messages prefixed `wled:`, comments explain why. `__version__` is the single source of the package version (`pyproject.toml` reads it); bump it and `CHANGELOG.md` for each release. The module filename must stay underscore-named so it is importable.

@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pibooth-wled-neopixel"
+dynamic = ["version"]
+description = "pibooth plugin that lights a NeoPixel/WS281x strip via an ESP32 running WLED over USB-serial"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "peteoheat" }]
+requires-python = ">=3.7"
+keywords = ["pibooth", "photobooth", "raspberry pi", "wled", "neopixel", "ws2812", "esp32"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Plugins",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Topic :: Multimedia :: Graphics :: Capture :: Digital Camera",
+]
+dependencies = [
+    "pibooth>=2.0.0",
+    "pyserial>=3.4",
+]
+
+[project.urls]
+Homepage = "https://github.com/peteoheat/pibooth-wled-neopixel"
+Issues = "https://github.com/peteoheat/pibooth-wled-neopixel/issues"
+
+# pibooth discovers installed plugins through this entry-point group.
+[project.entry-points.pibooth]
+pibooth_wled_neopixel = "pibooth_wled_neopixel"
+
+[tool.setuptools]
+py-modules = ["pibooth_wled_neopixel"]
+
+[tool.setuptools.dynamic]
+version = { attr = "pibooth_wled_neopixel.__version__" }
